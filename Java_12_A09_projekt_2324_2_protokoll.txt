@@ -1,0 +1,25 @@
+ 
+          protokoll
+ Kliens  <---------> Szerver:678
+  "join:z" ->                // A játékos csatlakozik a játékhoz z zsetonnal
+              <- "joined:z"  // Az osztó elfogadja a csatlakozást (visszajelzi z értékét)
+			  ...            // (aktuális kör végére vár)
+			  <- "start:n"   // Új kör kezdete, játékosok számával (erre kell várnia a játékosnak)
+			  ...            // (tétekre vár)
+  "exit" ->                  // Tét helyett a játékos ki is léphet,
+              <- "paid:y"    // ekkor visszakapja a megmaradt zsetonjait
+  "bet:x" ->                 // A játékos x zsetont feltesz tétnek
+              <- "s:lap"     // Az osztó elsõ lapja (+ egy lefordított)
+			  <- "k:lap"     // A játékos elsõ lapja
+			  <- "k:lap"     // A játékos második lapja
+			  ...            // (játékosokra vár)
+  "hit" ->                   // A játékos kérhet lapot
+  		      <- "k:lap"     // és akkor kap is egyet
+  "stand" ->                 // vagy megáll
+              ...            // (mindenkinek meg kell állnia)
+              <- "s:lap"     // Az osztó is kérhet lapot (17 pont alatt mindenképp)
+			  <- "end"       // Az osztó is megáll
+			  <- "balance:y" // Megmondja mennyi zsetonja maradt a játékosnak
+
+ Lap = színek: H(szív)S(pikk)C(treff)D(káró) + érték: 23456789JQKA
+ - például S8 = pikk nyolcas, DA = káró ász
