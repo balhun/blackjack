@@ -17,7 +17,7 @@ public class ServerController {
         public String ip;
         public int coin;
         public int bet;
-        public ListView<String> cards = new ListView<>();
+        public LinkedList<String> cards = new LinkedList<>();
 
         public Player(String ip, int coin) {
             this.ip = ip;
@@ -39,13 +39,13 @@ public class ServerController {
     };
     public LinkedList<String> mainDecks = new LinkedList<>();
     public LinkedList<Player> players = new LinkedList<>();
+    public LinkedList<String> serverCards = new LinkedList<>();
 
     //Other Variables
     DatagramSocket socket = null;
     public boolean round = false;
     public int deckLength = 0;
 
-    public ListView<String> serverCards = new ListView<>();
 
     //When program starts
     public void initialize() {
@@ -85,7 +85,7 @@ public class ServerController {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    //Recieve function to recieve data from client
+    //Recieve data from client
     private void recieve() { // Külön szálon!
         byte[] adat = new byte[256];
         DatagramPacket packet = new DatagramPacket(adat, adat.length);
@@ -100,22 +100,43 @@ public class ServerController {
         }
     }
 
-    //Process the recieved data according to the protocoll
+    //Process the recieved data according to the protocol
     private void onRecieve(String uzenet, String ip, int port) {
         String[] s = uzenet.split(":");
-
-        if (s[0].equals("join")) {
+        String message = "";
+        if (s[0].equals("join")) { //MAX PLAYEREKET ALLITSD BE
             players.add(new Player(ip, Integer.parseInt(s[1])));
-        } else if (s[0].equals("exit")) {
-            String message = String.format("paid:%d", players.get(searchPlayer(ip)).coin);
+        }
+
+        else if (s[0].equals("exit")) {
+            message = String.format("paid:%d", players.get(searchPlayer(ip)).coin);
             send(message, ip, port);
             players.remove(searchPlayer(ip));
-        } else if (s[0].equals("bet")) {
+        }
+
+        else if (s[0].equals("bet")) {
             players.get(searchPlayer(ip)).bet = Integer.parseInt(s[1]);
-            int randIndex = (int)(Math.random()*deckLength) //ITT FEJEZTEM BE!!!! (feladat, bejezni a get-et)
-            String randomCard = mainDecks.get(randIndex);
-            mainDecks.remove(randIndex);
-            String message = String.format("s:%d");
+            String randCard;
+
+            randCard = randCard();
+            serverCards.add(randCard);
+            message = String.format("s:%d", randCard);
+            send(message, ip, port);
+
+            randCard = randCard();
+            players.get(searchPlayer(ip)).cards.add(randCard);
+            message = String.format("k:%d", randCard);
+            send(message, ip, port);
+
+            randCard = randCard();
+            players.get(searchPlayer(ip)).cards.add(randCard);
+            message = String.format("k:%d", randCard);
+            send(message, ip, port);
+        }
+
+        else if (s[0].equals("hit")) {
+            message = String.format("k:%d", randCard());
+            send(message, ip, port);
         }
     }
 
@@ -127,4 +148,11 @@ public class ServerController {
         return -1;
     }
 
+    //Random card
+    public String randCard() {
+        int randIndex = (int)(Math.random()*deckLength);
+        String randomCard = mainDecks.get(randIndex);
+        mainDecks.remove(randIndex);
+        return randomCard;
+    }
 }
