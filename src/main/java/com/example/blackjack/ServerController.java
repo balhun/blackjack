@@ -32,30 +32,26 @@ public class ServerController {
 
     //Arrays
     public String[] initialDeck = {
-            "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "HJ", "HQ", "HK", "HA", //Szív
-            "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "SJ", "SQ", "SK", "SA", //Pikk
-            "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "CJ", "CQ", "CK", "CA", //Treff
-            "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "DJ", "DQ", "DK", "DA"  //Káró
+            "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "JH", "QH", "KH", "AH", //Szív
+            "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "JS", "QS", "KS", "AS", //Pikk
+            "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "JC", "QC", "KC", "AC", //Treff
+            "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "JD", "QD", "KD", "AD"  //Káró
     };
     public LinkedList<String> mainDecks = new LinkedList<>();
     public LinkedList<Player> players = new LinkedList<>();
     public LinkedList<String> serverCards = new LinkedList<>();
 
     //Other Variables
-    DatagramSocket socket = null;
+    public DatagramSocket socket = null;
     public boolean round = false;
     public int deckLength = 0;
+    public int standCount = 0;
 
 
     //When program starts
     public void initialize() {
         //Fill the mainDecks with 6 initialDeck
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < initialDeck.length; j++) {
-                mainDecks.add(initialDeck[j]);
-            }
-        }
-        deckLength = mainDecks.size();
+        fillMainDecks();
 
         //Initiate the socket
         try { socket = new DatagramSocket(678); } catch (SocketException e) { e.printStackTrace(); }
@@ -71,8 +67,30 @@ public class ServerController {
         thread.start();
     }
 
+    //Fills the main deck array
+    public void fillMainDecks() {
+        for (int i = 0; i < 6; i++) for (int j = 0; j < initialDeck.length; j++) mainDecks.add(initialDeck[j]);
+        deckLength = mainDecks.size();
+    }
+
     //Start round button
-    public void onClickButton() {
+    public void onClickNextRound() {
+        button.setDisable(true);
+        round = true;
+        String message = String.format("start:%d", players.size());
+        for (Player x : players) {
+            send(message, x.ip, 678);
+        }
+    }
+
+    //Reset game
+    public void onClickReset() {
+        mainDecks.clear();
+        listview.getItems().clear();
+        serverCards.clear();
+        players.clear();
+        button.setDisable(false);
+        fillMainDecks();
     }
 
     //Send function to send data to client
@@ -104,39 +122,56 @@ public class ServerController {
     private void onRecieve(String uzenet, String ip, int port) {
         String[] s = uzenet.split(":");
         String message = "";
-        if (s[0].equals("join")) { //MAX PLAYEREKET ALLITSD BE
+        if (s[0].equals("join") && players.size() < 5 && Integer.parseInt(s[1]) > 0 && !containsPlayer(ip)) {
+            listview.getItems().add(ip + " játékos csatlakozott " + s[1] + " pénzel");
             players.add(new Player(ip, Integer.parseInt(s[1])));
         }
 
         else if (s[0].equals("exit")) {
             message = String.format("paid:%d", players.get(searchPlayer(ip)).coin);
+            listview.getItems().add(ip + " játékos kilépett " + players.get(searchPlayer(ip)).coin + " pénz visszaadva");
             send(message, ip, port);
             players.remove(searchPlayer(ip));
+            deckLength = mainDecks.size();
         }
 
-        else if (s[0].equals("bet")) {
-            players.get(searchPlayer(ip)).bet = Integer.parseInt(s[1]);
-            String randCard;
+        if (round) {
+            if (s[0].equals("bet")) {
+                players.get(searchPlayer(ip)).bet = Integer.parseInt(s[1]);
+                String randCard;
 
-            randCard = randCard();
-            serverCards.add(randCard);
-            message = String.format("s:%d", randCard);
-            send(message, ip, port);
+                randCard = randCard();
+                serverCards.add(randCard);
+                message = String.format("s:%s", randCard);
+                listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                send(message, ip, port);
 
-            randCard = randCard();
-            players.get(searchPlayer(ip)).cards.add(randCard);
-            message = String.format("k:%d", randCard);
-            send(message, ip, port);
+                randCard = randCard();
+                players.get(searchPlayer(ip)).cards.add(randCard);
+                message = String.format("k:%s", randCard);
+                listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                send(message, ip, port);
 
-            randCard = randCard();
-            players.get(searchPlayer(ip)).cards.add(randCard);
-            message = String.format("k:%d", randCard);
-            send(message, ip, port);
-        }
+                randCard = randCard();
+                players.get(searchPlayer(ip)).cards.add(randCard);
+                message = String.format("k:%s", randCard);
+                listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                send(message, ip, port);
+            }
 
-        else if (s[0].equals("hit")) {
-            message = String.format("k:%d", randCard());
-            send(message, ip, port);
+            else if (s[0].equals("hit") && sumPlayerCards(ip) < 21) { //ENNÉL VALAMI NEM JÓ
+                message = String.format("k:%s", randCard());
+                listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                send(message, ip, port);
+            }
+
+            else if (s[0].equals("stand")) {
+                standCount++;
+                if (standCount == players.size()) {
+                    listview.getItems().add("Mindenki standelt");
+
+                }
+            }
         }
     }
 
@@ -154,5 +189,47 @@ public class ServerController {
         String randomCard = mainDecks.get(randIndex);
         mainDecks.remove(randIndex);
         return randomCard;
+    }
+
+    //Contains a player in players array by ip
+    public boolean containsPlayer(String ip) {
+        for (Player x : players) if (x.ip.equals(ip)) return true;
+        return false;
+    }
+
+    //Sum value of server cards
+    public int sumServerCards() {
+        int sum = 0;
+        for (String x : serverCards) {
+            if (x.charAt(1) == 'J' || x.charAt(1) == 'Q' || x.charAt(1) == 'K') {
+                sum += 10;
+            }
+
+            else if (x.charAt(1) == 'A') {
+                if ((sum += 11) > 21) sum += 1;
+                else sum += 11;
+            }
+
+            else sum += Integer.parseInt(x.charAt(1)+"");
+        }
+        return sum;
+    }
+
+    public int sumPlayerCards(String ip) {
+        int sum = 0;
+        LinkedList<String> playerCards = players.get(searchPlayer(ip)).cards;
+        for (String x : playerCards) {
+            if (x.charAt(1) == 'J' || x.charAt(1) == 'Q' || x.charAt(1) == 'K') {
+                sum += 10;
+            }
+
+            else if (x.charAt(1) == 'A') {
+                if ((sum += 11) > 21) sum += 1;
+                else sum += 11;
+            }
+
+            else sum += Integer.parseInt(x.charAt(1)+"");
+        }
+        return sum;
     }
 }
