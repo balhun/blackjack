@@ -112,6 +112,7 @@ public class ServerController {
         nextRoundButton.setDisable(false);
         resetButton.setDisable(true);
         fillMainDecks();
+        fillMainDecksValues();
     }
 
     //Send function to send data to client
