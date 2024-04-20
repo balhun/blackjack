@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 public class ServerController {
 
+
     //Player Class
     private class Player {
         public String ip;
@@ -27,8 +28,9 @@ public class ServerController {
     }
 
     //fxml variables
-    public Button button;
+    public Button nextRoundButton;
     public ListView listview;
+    public Button resetButton;
 
     //Arrays
     public String[] initialDeck = {
@@ -75,8 +77,10 @@ public class ServerController {
 
     //Start round button
     public void onClickNextRound() {
-        button.setDisable(true);
+        nextRoundButton.setDisable(true);
         round = true;
+        resetButton.setDisable(false);
+
         String message = String.format("start:%d", players.size());
         for (Player x : players) {
             send(message, x.ip, 678);
@@ -89,7 +93,8 @@ public class ServerController {
         listview.getItems().clear();
         serverCards.clear();
         players.clear();
-        button.setDisable(false);
+        nextRoundButton.setDisable(false);
+        resetButton.setDisable(true);
         fillMainDecks();
     }
 
@@ -124,6 +129,8 @@ public class ServerController {
         String message = "";
         if (s[0].equals("join") && players.size() < 5 && Integer.parseInt(s[1]) > 0 && !containsPlayer(ip)) {
             listview.getItems().add(ip + " játékos csatlakozott " + s[1] + " pénzel");
+            message = String.format("joined:%s", s[1]);
+            send(message, ip, port);
             players.add(new Player(ip, Integer.parseInt(s[1])));
         }
 
@@ -138,6 +145,7 @@ public class ServerController {
         if (round) {
             if (s[0].equals("bet")) {
                 players.get(searchPlayer(ip)).bet = Integer.parseInt(s[1]);
+                players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
                 String randCard;
 
                 randCard = randCard();
@@ -167,9 +175,13 @@ public class ServerController {
 
             else if (s[0].equals("stand")) {
                 standCount++;
-                if (standCount == players.size()) {
-                    listview.getItems().add("Mindenki standelt");
+                String randCard;
 
+                if (standCount == players.size()) {
+                    randCard = randCard();
+                    serverCards.add(randCard);
+                    message = String.format("s:%s", randCard);
+                    send(message, ip, port);
                 }
             }
         }
