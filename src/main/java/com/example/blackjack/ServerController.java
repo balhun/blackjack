@@ -192,8 +192,8 @@ public class ServerController {
                 String randCard;
 
                 if (standCount == players.size()) {
-
                     do {
+                        System.out.println("serverCardsValue = " + serverCardsValue);
                         randCard = randCard('s', ip);
                         message = String.format("s:%s", randCard);
                         send(message, ip, port);
