@@ -205,26 +205,33 @@ public class ServerController {
                 String randCard;
 
                 if (standCount == players.size()) {
-                    do {
+                    while (serverCardsValue < 17) {
                         randCard = randCard('s', ip);
                         message = String.format("s:%s", randCard);
                         send(message, ip, port);
-                    } while (serverCardsValue < 17);
+                    }
                 }
                 send("end", ip, port);
 
                 if (players.get(searchPlayer(ip)).cardsValue == serverCardsValue) {
+                    players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet;
                     message = String.format("balance:%d", players.get(searchPlayer(ip)).bet);
                     send(message, ip, port);
+
                 } else if (players.get(searchPlayer(ip)).blackjack && players.get(searchPlayer(ip)).cardsValue > serverCardsValue) {
+                    players.get(searchPlayer(ip)).coin += (int)(players.get(searchPlayer(ip)).bet * 1.5);
                     int playerWon = players.get(searchPlayer(ip)).coin += (int)(players.get(searchPlayer(ip)).bet * 1.5);
                     message = String.format("balance:%d", playerWon);
                     send(message, ip, port);
+
                 } else if (players.get(searchPlayer(ip)).cardsValue < 22 && players.get(searchPlayer(ip)).cardsValue > serverCardsValue && !players.get(searchPlayer(ip)).blackjack) {
+                    players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet * 2;
                     int playerWon = players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet * 2;
                     message = String.format("balance:%d", playerWon);
                     send(message, ip, port);
                 }
+
+                players.get(searchPlayer(ip)).bet = 0;
             }
         }
     }
