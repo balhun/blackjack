@@ -44,6 +44,7 @@ public class ServerController {
     public int[] initialDeckValue = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 };
 
     public LinkedList<String> mainDecks = new LinkedList<>();
+    public LinkedList<Integer> mainDecksValue = new LinkedList<>();
     public LinkedList<Player> players = new LinkedList<>();
 
     //Other Variables
@@ -58,6 +59,7 @@ public class ServerController {
     public void initialize() {
         //Fill the mainDecks with 6 initialDeck
         fillMainDecks();
+        fillMainDecksValues();
 
         //Initiate the socket
         try { socket = new DatagramSocket(678); } catch (SocketException e) { e.printStackTrace(); }
@@ -77,6 +79,11 @@ public class ServerController {
     public void fillMainDecks() {
         for (int i = 0; i < 6; i++) for (int j = 0; j < initialDeck.length; j++) mainDecks.add(initialDeck[j]);
         deckLength = mainDecks.size();
+    }
+
+    //Fills the main deck array
+    public void fillMainDecksValues() {
+        for (int i = 0; i < 6; i++) for (int j = 0; j < initialDeckValue.length; j++) mainDecksValue.add(initialDeckValue[j]);
     }
 
     //Start round button
@@ -212,15 +219,10 @@ public class ServerController {
 
     //Calculate card value
     public void calculateCardValue(int randIndex, char platform, String ip) {
-        int index = -1;
-        if ((randIndex+"").length() == 2) {
-            index = Integer.parseInt((randIndex+"").charAt(1)+"");
-        } else index = randIndex;
-
         if (platform == 's') {
-            serverCardsValue += initialDeckValue[index];
+            serverCardsValue += mainDecksValue.get(randIndex);
         } else {
-            players.get(searchPlayer(ip)).cardsValue += initialDeckValue[index];
+            players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
         }
     }
 }
