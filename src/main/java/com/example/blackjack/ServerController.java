@@ -228,6 +228,7 @@ public class ServerController {
 
     //Calculate card value
     public void calculateCardValue(int randIndex, char platform, String ip) {
+        System.out.println("mainDecks.get(randIndex) = " + mainDecks.get(randIndex));
         if (platform == 's') {
             serverCardsValue += mainDecksValue.get(randIndex);
         } else {
