@@ -213,16 +213,16 @@ public class ServerController {
     public int sumServerCards() {
         int sum = 0;
         for (String x : serverCards) {
-            if (x.charAt(1) == 'J' || x.charAt(1) == 'Q' || x.charAt(1) == 'K') {
+            if (x.charAt(0) == 'J' || x.charAt(0) == 'Q' || x.charAt(0) == 'K') {
                 sum += 10;
             }
 
-            else if (x.charAt(1) == 'A') {
+            else if (x.charAt(0) == 'A') {
                 if ((sum += 11) > 21) sum += 1;
                 else sum += 11;
             }
 
-            else sum += Integer.parseInt(x.charAt(1)+"");
+            else sum += Integer.parseInt(x.charAt(0)+"");
         }
         return sum;
     }
@@ -231,16 +231,16 @@ public class ServerController {
         int sum = 0;
         LinkedList<String> playerCards = players.get(searchPlayer(ip)).cards;
         for (String x : playerCards) {
-            if (x.charAt(1) == 'J' || x.charAt(1) == 'Q' || x.charAt(1) == 'K') {
+            if (x.charAt(0) == 'J' || x.charAt(0) == 'Q' || x.charAt(0) == 'K') {
                 sum += 10;
             }
 
-            else if (x.charAt(1) == 'A') {
+            else if (x.charAt(0) == 'A') {
                 if ((sum += 11) > 21) sum += 1;
                 else sum += 11;
             }
 
-            else sum += Integer.parseInt(x.charAt(1)+"");
+            else sum += Integer.parseInt(x.charAt(0)+"");
         }
         return sum;
     }
