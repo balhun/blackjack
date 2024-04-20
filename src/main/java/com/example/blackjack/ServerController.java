@@ -18,13 +18,19 @@ public class ServerController {
         public String ip;
         public int coin;
         public int bet;
+        public int port;
         public int cardsValue;
+        public boolean blacjack;
+        public boolean betIminent;
 
-        public Player(String ip, int coin) {
+        public Player(String ip, int port, int coin) {
             this.ip = ip;
             this.coin = coin;
             this.bet = 0;
+            this.port = port;
             cardsValue = 0;
+            blacjack = false;
+            betIminent = true;
         }
     }
 
@@ -99,7 +105,7 @@ public class ServerController {
 
         String message = String.format("start:%d", players.size());
         for (Player x : players) {
-            send(message, x.ip, 678);
+            send(message, x.ip, x.port);
         }
     }
 
@@ -142,15 +148,19 @@ public class ServerController {
 
     //Process the recieved data according to the protocol
     private void onRecieve(String uzenet, String ip, int port) {
+
         String[] s = uzenet.split(":");
         String message = "";
+
+        //Player joins
         if (s[0].equals("join") && players.size() < 5 && Integer.parseInt(s[1]) > 0 && !containsPlayer(ip)) {
             listview.getItems().add(ip + " játékos csatlakozott " + s[1] + " pénzel");
             message = String.format("joined:%s", s[1]);
             send(message, ip, port);
-            players.add(new Player(ip, Integer.parseInt(s[1])));
+            players.add(new Player(ip, port, Integer.parseInt(s[1])));
         }
 
+        //Player exists
         else if (s[0].equals("exit")) {
             message = String.format("paid:%d", players.get(searchPlayer(ip)).coin);
             listview.getItems().add(ip + " játékos kilépett " + players.get(searchPlayer(ip)).coin + " pénz visszaadva");
@@ -160,6 +170,7 @@ public class ServerController {
         }
 
         if (round) {
+            //Player puts a bet
             if (s[0].equals("bet")) {
                 players.get(searchPlayer(ip)).bet = Integer.parseInt(s[1]);
                 players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
@@ -181,12 +192,14 @@ public class ServerController {
                 send(message, ip, port);
             }
 
+            //Player hits
             else if (s[0].equals("hit") && players.get(searchPlayer(ip)).cardsValue <= 21) { //ENNÉL VALAMI NEM JÓ
                 message = String.format("k:%s", randCard('k', ip));
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
 
+            //Player stands
             else if (s[0].equals("stand")) {
                 standCount++;
                 String randCard;
@@ -197,6 +210,17 @@ public class ServerController {
                         message = String.format("s:%s", randCard);
                         send(message, ip, port);
                     } while (serverCardsValue < 17);
+                }
+                send("end", ip, port);
+
+                if (players.get(searchPlayer(ip)).blacjack) {
+                    int playerWon = players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet + players.get(searchPlayer(ip)).bet / 2;
+                    message = String.format("balance:%d", playerWon);
+                    send(message, ip, port);
+                } else if (players.get(searchPlayer(ip)).cardsValue < 22 && players.get(searchPlayer(ip)).cardsValue > serverCardsValue && !players.get(searchPlayer(ip)).blacjack) {
+                    int playerWon = players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet * 2;
+                    message = String.format("balance:%d", playerWon);
+                    send(message, ip, port);
                 }
             }
         }
@@ -240,6 +264,10 @@ public class ServerController {
                 players.get(searchPlayer(ip)).cardsValue += 1;
             } else {
                 players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
+            }
+            if (players.get(searchPlayer(ip)).betIminent) {
+                players.get(searchPlayer(ip)).blacjack = true;
+                players.get(searchPlayer(ip)).betIminent = false;
             }
         }
     }
