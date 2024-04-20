@@ -214,10 +214,10 @@ public class ServerController {
     //Random card
     public String randCard(char platform, String ip) {
         int randIndex = (int)(Math.random()*deckLength);
+        calculateCardValue(randIndex, platform, ip);
         String randomCard = mainDecks.get(randIndex);
         mainDecks.remove(randIndex);
         mainDecksValue.remove(randIndex);
-        calculateCardValue(randIndex, platform, ip);
         return randomCard;
     }
 
