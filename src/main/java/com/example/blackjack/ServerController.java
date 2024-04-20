@@ -18,12 +18,13 @@ public class ServerController {
         public String ip;
         public int coin;
         public int bet;
-        public LinkedList<String> cards = new LinkedList<>();
+        public int cardsValue;
 
         public Player(String ip, int coin) {
             this.ip = ip;
             this.coin = coin;
             this.bet = 0;
+            cardsValue = 0;
         }
     }
 
@@ -39,15 +40,18 @@ public class ServerController {
             "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "JC", "QC", "KC", "AC", //Treff
             "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "JD", "QD", "KD", "AD"  //Káró
     };
+
+    public int[] initialDeckValue = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 };
+
     public LinkedList<String> mainDecks = new LinkedList<>();
     public LinkedList<Player> players = new LinkedList<>();
-    public LinkedList<String> serverCards = new LinkedList<>();
 
     //Other Variables
     public DatagramSocket socket = null;
     public boolean round = false;
     public int deckLength = 0;
     public int standCount = 0;
+    public int serverCardsValue = 0;
 
 
     //When program starts
@@ -91,7 +95,7 @@ public class ServerController {
     public void onClickReset() {
         mainDecks.clear();
         listview.getItems().clear();
-        serverCards.clear();
+        serverCardsValue = 0;
         players.clear();
         nextRoundButton.setDisable(false);
         resetButton.setDisable(true);
@@ -148,27 +152,24 @@ public class ServerController {
                 players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
                 String randCard;
 
-                randCard = randCard();
-                serverCards.add(randCard);
+                randCard = randCard('s', ip);
                 message = String.format("s:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
-                randCard = randCard();
-                players.get(searchPlayer(ip)).cards.add(randCard);
+                randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
-                randCard = randCard();
-                players.get(searchPlayer(ip)).cards.add(randCard);
+                randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
 
-            else if (s[0].equals("hit") && sumPlayerCards(ip) < 21) { //ENNÉL VALAMI NEM JÓ
-                message = String.format("k:%s", randCard());
+            else if (s[0].equals("hit") && players.get(searchPlayer(ip)).cardsValue <= 21) { //ENNÉL VALAMI NEM JÓ
+                message = String.format("k:%s", randCard('k', ip));
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
@@ -178,8 +179,7 @@ public class ServerController {
                 String randCard;
 
                 if (standCount == players.size()) {
-                    randCard = randCard();
-                    serverCards.add(randCard);
+                    randCard = randCard('s', ip);
                     message = String.format("s:%s", randCard);
                     send(message, ip, port);
                 }
@@ -196,10 +196,11 @@ public class ServerController {
     }
 
     //Random card
-    public String randCard() {
+    public String randCard(char platform, String ip) {
         int randIndex = (int)(Math.random()*deckLength);
         String randomCard = mainDecks.get(randIndex);
         mainDecks.remove(randIndex);
+        calculateCardValue(randIndex, platform, ip);
         return randomCard;
     }
 
@@ -209,40 +210,17 @@ public class ServerController {
         return false;
     }
 
-    //Sum value of server cards
-    public int sumServerCards() {
-        int sum = 0;
-        for (String x : serverCards) {
-            if (x.charAt(0) == 'J' || x.charAt(0) == 'Q' || x.charAt(0) == 'K') {
-                sum += 10;
-            }
+    //Calculate card value
+    public void calculateCardValue(int randIndex, char platform, String ip) {
+        int index = -1;
+        if ((randIndex+"").length() == 2) {
+            index = Integer.parseInt((randIndex+"").charAt(1)+"");
+        } else index = randIndex;
 
-            else if (x.charAt(0) == 'A') {
-                if ((sum += 11) > 21) sum += 1;
-                else sum += 11;
-            }
-
-            else sum += Integer.parseInt(x.charAt(0)+"");
+        if (platform == 's') {
+            serverCardsValue += initialDeckValue[index];
+        } else {
+            players.get(searchPlayer(ip)).cardsValue += initialDeckValue[index];
         }
-        return sum;
-    }
-
-    public int sumPlayerCards(String ip) {
-        int sum = 0;
-        LinkedList<String> playerCards = players.get(searchPlayer(ip)).cards;
-        for (String x : playerCards) {
-            if (x.charAt(0) == 'J' || x.charAt(0) == 'Q' || x.charAt(0) == 'K') {
-                sum += 10;
-            }
-
-            else if (x.charAt(0) == 'A') {
-                if ((sum += 11) > 21) sum += 1;
-                else sum += 11;
-            }
-
-            else sum += Integer.parseInt(x.charAt(0)+"");
-        }
-        System.out.println("sum = " + sum);
-        return sum;
     }
 }
