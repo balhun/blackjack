@@ -41,7 +41,7 @@ public class ServerController {
             "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD", "AD"  //Káró
     };
 
-    public int[] initialDeckValue = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 10 };
+    public int[] initialDeckValue = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11 };
 
     public LinkedList<String> mainDecks = new LinkedList<>();
     public LinkedList<Integer> mainDecksValue = new LinkedList<>();
