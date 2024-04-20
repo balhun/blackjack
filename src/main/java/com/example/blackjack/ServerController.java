@@ -216,6 +216,7 @@ public class ServerController {
         int randIndex = (int)(Math.random()*deckLength);
         String randomCard = mainDecks.get(randIndex);
         mainDecks.remove(randIndex);
+        mainDecksValue.remove(randIndex);
         calculateCardValue(randIndex, platform, ip);
         return randomCard;
     }
