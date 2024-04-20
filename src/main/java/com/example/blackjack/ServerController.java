@@ -242,6 +242,7 @@ public class ServerController {
 
             else sum += Integer.parseInt(x.charAt(0)+"");
         }
+        System.out.println("sum = " + sum);
         return sum;
     }
 }
