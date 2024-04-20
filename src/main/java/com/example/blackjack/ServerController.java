@@ -182,7 +182,6 @@ public class ServerController {
 
             else if (s[0].equals("hit") && players.get(searchPlayer(ip)).cardsValue <= 21) { //ENNÉL VALAMI NEM JÓ
                 message = String.format("k:%s", randCard('k', ip));
-                System.out.println("players.get(searchPlayer(ip)).cardsValue = " + players.get(searchPlayer(ip)).cardsValue);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
@@ -193,11 +192,10 @@ public class ServerController {
 
                 if (standCount == players.size()) {
                     do {
-                        System.out.println("serverCardsValue = " + serverCardsValue);
                         randCard = randCard('s', ip);
                         message = String.format("s:%s", randCard);
                         send(message, ip, port);
-                    } while (serverCardsValue <= 17);
+                    } while (serverCardsValue < 17);
                 }
             }
         }
@@ -229,11 +227,19 @@ public class ServerController {
 
     //Calculate card value
     public void calculateCardValue(int randIndex, char platform, String ip) {
-        System.out.println("mainDecks.get(randIndex) = " + mainDecks.get(randIndex));
         if (platform == 's') {
-            serverCardsValue += mainDecksValue.get(randIndex);
+            if (mainDecks.get(randIndex).equals("A") && serverCardsValue + mainDecksValue.get(randIndex) > 21) {
+                serverCardsValue += 1;
+            } else {
+                serverCardsValue += mainDecksValue.get(randIndex);
+            }
         } else {
-            players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
+            int playerCardsValue = players.get(searchPlayer(ip)).cardsValue;
+            if (mainDecks.get(randIndex).equals("A") && playerCardsValue + mainDecksValue.get(randIndex) > 21) {
+                players.get(searchPlayer(ip)).cardsValue += 1;
+            } else {
+                players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
+            }
         }
     }
 }
