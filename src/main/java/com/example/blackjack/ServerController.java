@@ -41,7 +41,12 @@ public class ServerController {
             "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD", "AD"  //Káró
     };
 
-    public int[] initialDeckValue = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11 };
+    public int[] initialDeckValue = {
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11,
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11
+    };
 
     public LinkedList<String> mainDecks = new LinkedList<>();
     public LinkedList<Integer> mainDecksValue = new LinkedList<>();
@@ -83,9 +88,7 @@ public class ServerController {
 
     //Fills the main deck array
     public void fillMainDecksValues() {
-        for (int i = 0; i < 24; i++) for (int j = 0; j < initialDeckValue.length; j++) mainDecksValue.add(initialDeckValue[j]);
-        System.out.println("mainDecksValue.size() = " + mainDecksValue.size());
-        System.out.println("mainDecks.size() = " + mainDecks.size());
+        for (int i = 0; i < 6; i++) for (int j = 0; j < initialDeckValue.length; j++) mainDecksValue.add(initialDeckValue[j]);
     }
 
     //Start round button
@@ -179,6 +182,7 @@ public class ServerController {
 
             else if (s[0].equals("hit") && players.get(searchPlayer(ip)).cardsValue <= 21) { //ENNÉL VALAMI NEM JÓ
                 message = String.format("k:%s", randCard('k', ip));
+                System.out.println("players.get(searchPlayer(ip)).cardsValue = " + players.get(searchPlayer(ip)).cardsValue);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
@@ -188,9 +192,12 @@ public class ServerController {
                 String randCard;
 
                 if (standCount == players.size()) {
-                    randCard = randCard('s', ip);
-                    message = String.format("s:%s", randCard);
-                    send(message, ip, port);
+
+                    do {
+                        randCard = randCard('s', ip);
+                        message = String.format("s:%s", randCard);
+                        send(message, ip, port);
+                    } while (serverCardsValue <= 17);
                 }
             }
         }
