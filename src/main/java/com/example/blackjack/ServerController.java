@@ -20,8 +20,8 @@ public class ServerController {
         public int bet;
         public int port;
         public int cardsValue;
-        public boolean blacjack;
-        public boolean betIminent;
+        public int cardsRecieved;
+        public boolean blackjack;
 
         public Player(String ip, int port, int coin) {
             this.ip = ip;
@@ -29,8 +29,8 @@ public class ServerController {
             this.bet = 0;
             this.port = port;
             cardsValue = 0;
-            blacjack = false;
-            betIminent = true;
+            cardsRecieved = 0;
+            blackjack = false;
         }
     }
 
@@ -213,11 +213,14 @@ public class ServerController {
                 }
                 send("end", ip, port);
 
-                if (players.get(searchPlayer(ip)).blacjack) {
-                    int playerWon = players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet + players.get(searchPlayer(ip)).bet / 2;
+                if (players.get(searchPlayer(ip)).cardsValue == serverCardsValue) {
+                    message = String.format("balance:%d", players.get(searchPlayer(ip)).bet);
+                    send(message, ip, port);
+                } else if (players.get(searchPlayer(ip)).blackjack && players.get(searchPlayer(ip)).cardsValue > serverCardsValue) {
+                    int playerWon = players.get(searchPlayer(ip)).coin += (int)(players.get(searchPlayer(ip)).bet * 1.5);
                     message = String.format("balance:%d", playerWon);
                     send(message, ip, port);
-                } else if (players.get(searchPlayer(ip)).cardsValue < 22 && players.get(searchPlayer(ip)).cardsValue > serverCardsValue && !players.get(searchPlayer(ip)).blacjack) {
+                } else if (players.get(searchPlayer(ip)).cardsValue < 22 && players.get(searchPlayer(ip)).cardsValue > serverCardsValue && !players.get(searchPlayer(ip)).blackjack) {
                     int playerWon = players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet * 2;
                     message = String.format("balance:%d", playerWon);
                     send(message, ip, port);
@@ -239,6 +242,7 @@ public class ServerController {
         int randIndex = (int)(Math.random()*deckLength);
         calculateCardValue(randIndex, platform, ip);
         String randomCard = mainDecks.get(randIndex);
+        players.get(searchPlayer(ip)).cardsRecieved++;
         mainDecks.remove(randIndex);
         mainDecksValue.remove(randIndex);
         return randomCard;
@@ -265,9 +269,8 @@ public class ServerController {
             } else {
                 players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
             }
-            if (players.get(searchPlayer(ip)).betIminent) {
-                players.get(searchPlayer(ip)).blacjack = true;
-                players.get(searchPlayer(ip)).betIminent = false;
+            if (players.get(searchPlayer(ip)).cardsRecieved == 2 && players.get(searchPlayer(ip)).cardsValue == 21) {
+                players.get(searchPlayer(ip)).blackjack = true;
             }
         }
     }
