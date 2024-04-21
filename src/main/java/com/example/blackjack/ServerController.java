@@ -114,6 +114,7 @@ public class ServerController {
         mainDecks.clear();
         listview.getItems().clear();
         serverCardsValue = 0;
+        standCount = 0;
         players.clear();
         nextRoundButton.setDisable(false);
         resetButton.setDisable(true);
@@ -234,6 +235,7 @@ public class ServerController {
                 }
 
                 players.get(searchPlayer(ip)).bet = 0;
+                onClickReset();
             }
         }
     }
