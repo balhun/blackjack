@@ -209,6 +209,12 @@ public class ServerController {
                         send(message, ip, port);
                     }
 
+                    else if (serverCardsValue > 21) {
+                        message = String.format("balance:%d", 0);
+                        listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                        send(message, ip, port);
+                    }
+
                     else if (players.get(searchPlayer(ip)).cardsValue == 21 && players.get(searchPlayer(ip)).cardsReceived == 2) {
                         players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet * 2.5;
                         message = String.format("balance:%d", players.get(searchPlayer(ip)).bet * 2.5);
