@@ -35,7 +35,6 @@ public class ServerController {
     //fxml variables
     public Button nextRoundButton;
     public ListView listview;
-    public Button resetButton;
 
     //Arrays
     public String[] initialDeck = {
@@ -86,18 +85,14 @@ public class ServerController {
     //Fills the main deck array
     public void fillMainDecks() {
         for (int i = 0; i < 6; i++) for (int j = 0; j < initialDeck.length; j++) mainDecks.add(initialDeck[j]);
-    }
-
-    //Fills the main deck array
-    public void fillMainDecksValues() {
         for (int i = 0; i < 6; i++) for (int j = 0; j < initialDeckValue.length; j++) mainDecksValue.add(initialDeckValue[j]);
     }
+
 
     //Start round button
     public void onClickNextRound() {
         nextRoundButton.setDisable(true);
         round = true;
-        resetButton.setDisable(false);
 
         String message = String.format("start:%d", players.size());
         for (Player x : players) {
@@ -106,16 +101,6 @@ public class ServerController {
     }
 
     //Reset game
-    public void onClickReset() {
-        mainDecks.clear();
-        listview.getItems().clear();
-        serverCardsValue = 0;
-        standCount = 0;
-        nextRoundButton.setDisable(false);
-        resetButton.setDisable(true);
-        fillMainDecks();
-        fillMainDecksValues();
-    }
 
     //Send function to send data to client
      private void send(String uzenet, String ip, int port) {
@@ -215,7 +200,7 @@ public class ServerController {
 
                 if (players.get(searchPlayer(ip)).cardsValue < 22) {
 
-                    if (players.get(searchPlayer(ip)).cardsValue < serverCardsValue) {
+                    if (players.get(searchPlayer(ip)).cardsValue < serverCardsValue && serverCardsValue < 22) {
                         message = String.format("balance:%d", 0);
                         listview.getItems().add(ip + " játékosnak elküldve: " + message);
                         send(message, ip, port);
@@ -247,12 +232,19 @@ public class ServerController {
                     send(message, ip, port);
                 }
 
+                try { Thread.sleep(5000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+
                 players.get(searchPlayer(ip)).bet = 0;
                 players.get(searchPlayer(ip)).cardsReceived = 0;
                 players.get(searchPlayer(ip)).cardsValue = 0;
+                mainDecks.clear();
+                mainDecksValue.clear();
+                listview.getItems().clear();
+                serverCardsValue = 0;
+                standCount = 0;
+                nextRoundButton.setDisable(false);
+                fillMainDecks();
 
-                try { Thread.sleep(5000); } catch (InterruptedException e) { throw new RuntimeException(e); }
-                onClickReset();
             }
         }
     }

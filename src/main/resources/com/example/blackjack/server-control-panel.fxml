@@ -17,14 +17,6 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="resetButton" alignment="TOP_CENTER" disable="true" layoutX="15.0" layoutY="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickReset" prefWidth="200.0" text="Reset">
-               <font>
-                  <Font name="Monospaced Regular" size="18.0" />
-               </font>
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </Button>
          </children>
       </VBox>
       <ListView fx:id="listview" opacity="0.5" VBox.vgrow="ALWAYS">
