@@ -241,6 +241,10 @@ public class ServerController {
                         listview.getItems().add(ip + " játékosnak elküldve: " + message);
                         send(message, ip, port);
                     }
+                } else {
+                    message = String.format("balance:%d", 0);
+                    listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                    send(message, ip, port);
                 }
 
                 players.get(searchPlayer(ip)).bet = 0;
