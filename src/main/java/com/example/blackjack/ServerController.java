@@ -155,21 +155,21 @@ public class ServerController {
                 players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
                 String randCard;
 
-                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                randCard = randCard('k', ip);
+                message = String.format("k:%s", randCard);
+                listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                send(message, ip, port);
+
+                try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                randCard = randCard('k', ip);
+                message = String.format("k:%s", randCard);
+                listview.getItems().add(ip + " játékosnak elküldve: " + message);
+                send(message, ip, port);
+
+                try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('s', ip);
                 message = String.format("s:%s", randCard);
-                listview.getItems().add(ip + " játékosnak elküldve: " + message);
-                send(message, ip, port);
-
-                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
-                randCard = randCard('k', ip);
-                message = String.format("k:%s", randCard);
-                listview.getItems().add(ip + " játékosnak elküldve: " + message);
-                send(message, ip, port);
-
-                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
-                randCard = randCard('k', ip);
-                message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
@@ -188,7 +188,7 @@ public class ServerController {
 
                 if (standCount == players.size()) {
                     while (serverCardsValue < 17) {
-                        try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                        try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
                         randCard = randCard('s', ip);
                         message = String.format("s:%s", randCard);
                         send(message, ip, port);
@@ -196,10 +196,11 @@ public class ServerController {
                 }
                 send("end", ip, port);
 
-                System.out.println("coin = " + players.get(searchPlayer(ip)).coin);
-                System.out.println("bet = " + players.get(searchPlayer(ip)).bet);
-                System.out.println("cardsReceived = " + players.get(searchPlayer(ip)).cardsReceived);
-                System.out.println("cardsValue = " + players.get(searchPlayer(ip)).cardsValue);
+                System.out.printf("%s coin = %d\n", ip, players.get(searchPlayer(ip)).coin);
+                System.out.printf("%s bet = %d\n", ip, players.get(searchPlayer(ip)).bet);
+                System.out.printf("%s cardReceived = %d\n", ip, players.get(searchPlayer(ip)).cardsReceived);
+                System.out.printf("%s cardsValue = %d\n", ip, players.get(searchPlayer(ip)).cardsValue);
+                System.out.printf("Server cardsValue = %d\n", serverCardsValue);
 
                 if (players.get(searchPlayer(ip)).cardsValue < 22) {
 
@@ -210,7 +211,8 @@ public class ServerController {
                     }
 
                     else if (serverCardsValue > 21) {
-                        message = String.format("balance:%d", 0);
+                        players.get(searchPlayer(ip)).coin += players.get(searchPlayer(ip)).bet * 2;
+                        message = String.format("balance:%d", players.get(searchPlayer(ip)).bet * 2);
                         listview.getItems().add(ip + " játékosnak elküldve: " + message);
                         send(message, ip, port);
                     }
@@ -287,6 +289,7 @@ public class ServerController {
     public void calculateCardValue(int randIndex, char platform, String ip) {
         if (platform == 's') {
             if (mainDecks.get(randIndex).equals("A")) {
+                System.out.println("EZ EGY ÁSZ BAZMEG");
                 if ((serverCardsValue + 11) > 21) {
                     serverCardsValue += 1;
                 } else {
@@ -297,6 +300,7 @@ public class ServerController {
             }
         } else {
             if (mainDecks.get(randIndex).equals("A")) {
+                System.out.println("EZ EGY ÁSZ BAZMEG");
                 if ((players.get(searchPlayer(ip)).cardsValue + 11) > 21) {
                     players.get(searchPlayer(ip)).cardsValue += 1;
                 } else {
