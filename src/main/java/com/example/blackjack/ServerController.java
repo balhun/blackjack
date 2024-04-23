@@ -155,16 +155,19 @@ public class ServerController {
                 players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
                 String randCard;
 
+                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('s', ip);
                 message = String.format("s:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
+                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
+                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
@@ -185,6 +188,7 @@ public class ServerController {
 
                 if (standCount == players.size()) {
                     while (serverCardsValue < 17) {
+                        try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
                         randCard = randCard('s', ip);
                         message = String.format("s:%s", randCard);
                         send(message, ip, port);
@@ -243,7 +247,7 @@ public class ServerController {
                 standCount = 0;
                 nextRoundButton.setDisable(false);
                 fillMainDecks();
-
+                System.out.println("NEXT ROUND AVAILABLE --------------------------------");
             }
         }
     }
