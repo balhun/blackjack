@@ -155,19 +155,19 @@ public class ServerController {
                 players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
                 String randCard;
 
-                try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(700); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
-                try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(700); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
-                try { Thread.sleep(1000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                try { Thread.sleep(700); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('s', ip);
                 message = String.format("s:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
@@ -288,7 +288,7 @@ public class ServerController {
     //Calculate card value
     public void calculateCardValue(int randIndex, char platform, String ip) {
         if (platform == 's') {
-            if (mainDecks.get(randIndex).equals("A")) {
+            if (mainDecks.get(randIndex).charAt(0) == 'A') {
                 System.out.println("EZ EGY ÁSZ BAZMEG");
                 if ((serverCardsValue + 11) > 21) {
                     serverCardsValue += 1;
@@ -299,7 +299,7 @@ public class ServerController {
                 serverCardsValue += mainDecksValue.get(randIndex);
             }
         } else {
-            if (mainDecks.get(randIndex).equals("A")) {
+            if (mainDecks.get(randIndex).charAt(0) == 'A') {
                 System.out.println("EZ EGY ÁSZ BAZMEG");
                 if ((players.get(searchPlayer(ip)).cardsValue + 11) > 21) {
                     players.get(searchPlayer(ip)).cardsValue += 1;
