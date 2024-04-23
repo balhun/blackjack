@@ -279,13 +279,8 @@ public class ServerController {
         return randomCard;
     }
 
-    //Contains a player in players array by ip
-    public boolean containsPlayer(String ip) {
-        for (Player x : players) if (x.ip.equals(ip)) return true;
-        return false;
-    }
-
     //Calculate card value
+    // ITT MÉG BAJOK VANNAK ÁSZ ROSSZUL VAN SZÁMOLVA MIUTÁN ÚGY LÉP TÚL, HOGY MÁR KAPOTT ÁSZT DE AZ ÁSZ KOR MÉG NEM VOLT TÚLLÉPÉS
     public void calculateCardValue(int randIndex, char platform, String ip) {
         if (platform == 's') {
             if (mainDecks.get(randIndex).charAt(0) == 'A') {
@@ -309,6 +304,13 @@ public class ServerController {
             } else {
                 players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
             }
+            players.get(searchPlayer(ip)).cardsReceived++;
         }
+    }
+
+    //Contains a player in players array by ip
+    public boolean containsPlayer(String ip) {
+        for (Player x : players) if (x.ip.equals(ip)) return true;
+        return false;
     }
 }
