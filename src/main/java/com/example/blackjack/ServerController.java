@@ -134,7 +134,6 @@ public class ServerController {
 
         String[] s = uzenet.split(":");
         String message = "";
-        System.out.println("--------------------------------");
 
         //Player joins
         if (s[0].equals("join") && players.size() < 5 && Integer.parseInt(s[1]) > 0 && !containsPlayer(ip)) {
@@ -200,13 +199,11 @@ public class ServerController {
                 }
                 send("end", ip, port);
 
-                System.out.println("--------------------------------");
                 System.out.printf("%s coin = %d\n", ip, players.get(searchPlayer(ip)).coin);
                 System.out.printf("%s bet = %d\n", ip, players.get(searchPlayer(ip)).bet);
                 System.out.printf("%s cardReceived = %d\n", ip, players.get(searchPlayer(ip)).cardsReceived);
                 System.out.printf("%s cardsValue = %d\n", ip, players.get(searchPlayer(ip)).cardsValue);
                 System.out.printf("Server cardsValue = %d\n", serverCardsValue);
-                System.out.println("--------------------------------");
 
                 if (players.get(searchPlayer(ip)).cardsValue < 22) {
 
@@ -249,7 +246,6 @@ public class ServerController {
                     send(message, ip, port);
                 }
 
-                System.out.println("--------------------------------");
                 try { Thread.sleep(5000); } catch (InterruptedException e) { throw new RuntimeException(e); }
 
                 players.get(searchPlayer(ip)).bet = 0;
