@@ -5,24 +5,15 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="300.0" style="-fx-background-color: linear-gradient(to right bottom, #015294, #02f1f5);" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.blackjack.ServerController">
+<VBox alignment="TOP_CENTER" style="-fx-background-color: linear-gradient(to right bottom, #015294, #02f1f5);" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.blackjack.ServerController">
    <children>
-      <VBox>
-         <children>
-            <Button fx:id="nextRoundButton" alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNextRound" prefWidth="200.0" text="Next Round" VBox.vgrow="ALWAYS">
-               <font>
-                  <Font name="Monospaced Regular" size="18.0" />
-               </font>
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </Button>
-         </children>
-      </VBox>
-      <ListView fx:id="listview" opacity="0.5" VBox.vgrow="ALWAYS">
+      <Button fx:id="nextRoundButton" alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNextRound" prefWidth="500.0" text="Next Round" VBox.vgrow="ALWAYS">
+         <font>
+            <Font name="Monospaced Regular" size="18.0" />
+         </font>
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
-      </ListView>
+      </Button>
    </children>
 </VBox>
