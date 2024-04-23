@@ -66,7 +66,6 @@ public class ServerController {
     public void initialize() {
         //Fill the mainDecks with 6 initialDeck
         fillMainDecks();
-        fillMainDecksValues();
 
         //Initiate the socket
         try { socket = new DatagramSocket(678); } catch (SocketException e) { e.printStackTrace(); }
