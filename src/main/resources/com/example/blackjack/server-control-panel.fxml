@@ -6,9 +6,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="TOP_CENTER" style="-fx-background-color: #454753;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.blackjack.ServerController">
+<VBox alignment="TOP_CENTER" style="-fx-background-color: #454753;" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.blackjack.ServerController">
    <children>
-      <Button fx:id="nextRoundButton" alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNextRound" prefWidth="500.0" text="Next Round" VBox.vgrow="ALWAYS">
+      <Button fx:id="nextRoundButton" alignment="TOP_CENTER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNextRound" prefWidth="500.0" text="Next Round" VBox.vgrow="ALWAYS">
          <font>
             <Font name="Monospaced Regular" size="18.0" />
          </font>

@@ -141,6 +141,7 @@ public class ServerController {
             message = String.format("joined:%s", s[1]);
             send(message, ip, port);
             players.add(new Player(ip, port, Integer.parseInt(s[1])));
+            nextRoundButton.setDisable(false);
         }
 
         //Player exists
@@ -149,6 +150,16 @@ public class ServerController {
             System.out.println(ip + " játékos kilépett " + players.get(searchPlayer(ip)).coin + " pénz visszaadva");
             send(message, ip, port);
             players.remove(searchPlayer(ip));
+            if (players.size() == 0) nextRoundButton.setDisable(true);
+            if (round && players.size() == 0) {
+                mainDecks.clear();
+                mainDecksValue.clear();
+                serverCardsValue = 0;
+                standCount = 0;
+                nextRoundButton.setDisable(true);
+                fillMainDecks();
+                System.out.println("NEXT ROUND AVAILABLE --------------------------------");
+            }
         }
 
         if (round) {
