@@ -21,6 +21,7 @@ public class ServerController {
         public int port;
         public int cardsValue;
         public int cardsReceived;
+        public int sumAce;
 
         public Player(String ip, int port, int coin) {
             this.ip = ip;
@@ -29,6 +30,7 @@ public class ServerController {
             this.port = port;
             cardsValue = 0;
             cardsReceived = 0;
+            sumAce = 0;
         }
     }
 
@@ -59,6 +61,7 @@ public class ServerController {
     public boolean round = false;
     public int standCount = 0;
     public int serverCardsValue = 0;
+    public int sumServerAce = 0;
 
 
     //When program starts
@@ -149,6 +152,7 @@ public class ServerController {
             message = String.format("paid:%d", players.get(searchPlayer(ip)).coin);
             System.out.println(ip + " játékos kilépett " + players.get(searchPlayer(ip)).coin + " pénz visszaadva");
             send(message, ip, port);
+            standCount--;
             players.remove(searchPlayer(ip));
             if (players.size() == 0) nextRoundButton.setDisable(true);
             if (round && players.size() == 0) {
@@ -209,7 +213,7 @@ public class ServerController {
                     }
                 }
                 send("end", ip, port);
-
+                System.out.println("----------------------------");
                 System.out.printf("%s coin = %d\n", ip, players.get(searchPlayer(ip)).coin);
                 System.out.printf("%s bet = %d\n", ip, players.get(searchPlayer(ip)).bet);
                 System.out.printf("%s cardReceived = %d\n", ip, players.get(searchPlayer(ip)).cardsReceived);
@@ -297,21 +301,12 @@ public class ServerController {
     public void calculateCardValue(int randIndex, char platform, String ip) {
         if (platform == 's') {
             if (mainDecks.get(randIndex).charAt(0) == 'A') {
-                if ((serverCardsValue + 11) > 21) {
-                    serverCardsValue += 1;
-                } else {
-                    serverCardsValue += 11;
-                }
-            } else {
-                serverCardsValue += mainDecksValue.get(randIndex);
+
             }
         } else {
             if (mainDecks.get(randIndex).charAt(0) == 'A') {
-                if ((players.get(searchPlayer(ip)).cardsValue + 11) > 21) {
-                    players.get(searchPlayer(ip)).cardsValue += 1;
-                } else {
-                    players.get(searchPlayer(ip)).cardsValue += 11;
-                }
+                players.get(searchPlayer(ip)).sumAce++;
+
             } else {
                 players.get(searchPlayer(ip)).cardsValue += mainDecksValue.get(randIndex);
             }
