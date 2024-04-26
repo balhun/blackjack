@@ -16,10 +16,25 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </Button>
-      <ImageView fitHeight="288.0" fitWidth="512.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@background.jpg" />
-         </image>
-      </ImageView>
+      <HBox>
+         <children>
+            <ImageView fitHeight="288.0" fitWidth="512.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@background.jpg" />
+               </image>
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </ImageView>
+            <ListView fx:id="listview" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="300.0" HBox.hgrow="ALWAYS">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <HBox.margin>
+                  <Insets bottom="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </ListView>
+         </children>
+      </HBox>
    </children>
 </VBox>
