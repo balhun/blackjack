@@ -20,6 +20,7 @@ public class ServerController {
         public int bet;
         public int cardsValue;
         public int cardsReceived;
+        public boolean standing;
         public boolean inRound;
 
         public Player(String ip, int port, int coin) {
@@ -27,9 +28,9 @@ public class ServerController {
             this.port = port;
             this.coin = coin;
             this.bet = 0;
-            this.port = port;
             cardsValue = 0;
             cardsReceived = 0;
+            standing = false;
             inRound = false;
         }
     }
@@ -60,10 +61,7 @@ public class ServerController {
     //Other Variables
     public DatagramSocket socket = null;
     public boolean round = false;
-    public int standCount = 0;
     public int serverCardsValue = 0;
-    public int sentCount = 0;
-    public int serverCardsSent = 0;
     public LinkedList<String> serverCards = new LinkedList<>();
 
 
@@ -100,12 +98,9 @@ public class ServerController {
     public void onClickNextRound() {
         nextRoundButton.setDisable(true);
         round = true;
-
         String message = String.format("start:%d", players.size());
 
-        while (serverCardsValue <= 17) {
-            serverCards.add(randCard('s', ""));
-        }
+        while (serverCardsValue < 17) serverCards.add(randCard('s', ""));
 
         for (String x : serverCards) System.out.println("serverCard = " + x);
         for (Player x : players) {
@@ -146,7 +141,7 @@ public class ServerController {
         String message = "";
 
         //Player joins
-        if (s[0].equals("join") && players.size() < 5 && Integer.parseInt(s[1]) > 0 && !containsPlayer(ip) && Integer.parseInt(s[1]) > 0) {
+        if (s[0].equals("join") && players.size() < 5 && tryInt(s[1]) > 0 && searchPlayer(ip) == -1 && tryInt(s[1]) < 100000) {
             listview.getItems().add(ip + " játékos csatlakozott " + s[1] + " pénzel");
             message = String.format("joined:%s", s[1]);
             send(message, ip, port);
@@ -155,19 +150,17 @@ public class ServerController {
         }
 
         //Player exists
-        else if (s[0].equals("exit") && players.contains(players.get(searchPlayer(ip)))) {
+        if (s[0].equals("exit") && searchPlayer(ip) != -1) {
             message = String.format("paid:%d", players.get(searchPlayer(ip)).coin);
             listview.getItems().add(ip + " játékos kilépett " + players.get(searchPlayer(ip)).coin + " pénz visszaadva");
             send(message, ip, port);
-            standCount--;
             players.remove(searchPlayer(ip));
+
             if (players.size() == 0) nextRoundButton.setDisable(true);
             if (round && players.size() == 0) {
                 mainDecks.clear();
                 mainDecksValue.clear();
                 serverCardsValue = 0;
-                standCount = 0;
-                serverCardsSent = 0;
                 nextRoundButton.setDisable(true);
                 fillMainDecks();
                 listview.getItems().add("NEXT ROUND AVAILABLE --------------------------------");
@@ -175,52 +168,50 @@ public class ServerController {
         }
 
         //Inround bet stand etc
-        else if (round && players.get(searchPlayer(ip)).inRound) {
+        if (round && players.get(searchPlayer(ip)).inRound) {
             //Player puts a bet
             if (s[0].equals("bet") && players.get(searchPlayer(ip)).cardsValue == 0) {
                 players.get(searchPlayer(ip)).bet = Integer.parseInt(s[1]);
                 players.get(searchPlayer(ip)).coin -= Integer.parseInt(s[1]);
-                String randCard;
 
-                try { Thread.sleep(700); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                String randCard;
+                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
                 randCard = randCard('k', ip);
                 message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
-                try { Thread.sleep(700); } catch (InterruptedException e) { throw new RuntimeException(e); }
-                message = String.format("k:%s", serverCards.get(serverCardsSent));
-                serverCardsSent++;
+                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                randCard = randCard('k', ip);
+                message = String.format("k:%s", randCard);
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
 
-                try { Thread.sleep(700); } catch (InterruptedException e) { throw new RuntimeException(e); }
-                message = String.format("s:%s", serverCards.get(serverCardsSent));
-                serverCardsSent++;
+                try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                message = String.format("s:%s", serverCards.get(0));
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
 
             //Player hits
-            else if (s[0].equals("hit") && players.get(searchPlayer(ip)).cardsValue <= 21  && players.get(searchPlayer(ip)).inRound && players.get(searchPlayer(ip)).cardsValue > 0) {
+            if (s[0].equals("hit") && players.get(searchPlayer(ip)).cardsValue <= 21 && players.get(searchPlayer(ip)).cardsValue > 0) {
                 message = String.format("k:%s", randCard('k', ip));
                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                 send(message, ip, port);
             }
 
             //Player stands
-            else if (s[0].equals("stand")) {
-                standCount++;
-
-                if (standCount == players.size()) {
+            if (s[0].equals("stand")) {
+                players.get(searchPlayer(ip)).standing = true;
+                if (allStand()) {
                     for (Player player : players) {
-                        for (String card : serverCards) {
-                            try { Thread.sleep(500); } catch (InterruptedException e) { throw new RuntimeException(e); }
-                            message = String.format("s:%s", card);
-                            send(message, player.ip, player.port);
+                            for (int i = 2; i < serverCards.size(); i++) {
+                                try { Thread.sleep(100); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                                message = String.format("s:%s", serverCards.get(i));
+                                send(message, player.ip, player.port);
                         }
-
                         send("end", player.ip, player.port);
+
                         listview.getItems().add(String.format("%s coin = %d\n", player.ip, player.coin));
                         listview.getItems().add(String.format("%s bet = %d\n", player.ip, player.bet));
                         listview.getItems().add(String.format("%s cardReceived = %d\n", player.ip, player.cardsReceived));
@@ -237,7 +228,7 @@ public class ServerController {
 
                             else if (serverCardsValue > 21) {
                                 player.coin += player.bet * 2;
-                                message = String.format("balance:%d", player.bet * 2);
+                                message = String.format("balance:%d", player.coin);
                                 listview.getItems().add(player.ip + " játékosnak elküldve: " + message);
                                 send(message, player.ip, player.port);
                             }
@@ -262,31 +253,32 @@ public class ServerController {
                                 listview.getItems().add(ip + " játékosnak elküldve: " + message);
                                 send(message, player.ip, player.port);
                             }
+
                         } else {
                             message = String.format("balance:%d", player.coin);
                             listview.getItems().add(ip + " játékosnak elküldve: " + message);
                             send(message, player.ip, player.port);
                         }
-                        player.bet = 0;
-                        player.cardsReceived = 0;
-                        player.cardsValue = 0;
-                        player.inRound = false;
-                        sentCount++;
                     }
                 }
 
-                if (sentCount == standCount) {
-                    try { Thread.sleep(5000); } catch (InterruptedException e) { throw new RuntimeException(e); }
-
-                    mainDecks.clear();
-                    mainDecksValue.clear();
-                    serverCardsValue = 0;
-                    standCount = 0;
-                    sentCount = 0;
-                    nextRoundButton.setDisable(false);
-                    fillMainDecks();
-                    listview.getItems().add("NEXT ROUND AVAILABLE --------------------------------");
+                try { Thread.sleep(5000); } catch (InterruptedException e) { throw new RuntimeException(e); }
+                for (Player player : players) {
+                    player.bet = 0;
+                    player.cardsReceived = 0;
+                    player.cardsValue = 0;
+                    player.inRound = false;
+                    player.standing = false;
                 }
+
+                mainDecks.clear();
+                mainDecksValue.clear();
+                serverCardsValue = 0;
+                round = false;
+                nextRoundButton.setDisable(false);
+                fillMainDecks();
+                serverCards.clear();
+                listview.getItems().add("NEXT ROUND AVAILABLE --------------------------------");
             }
         }
     }
@@ -340,5 +332,22 @@ public class ServerController {
     public boolean containsPlayer(String ip) {
         for (Player x : players) if (x.ip.equals(ip)) return true;
         return false;
+    }
+
+    //Tries to parseInt
+    public int tryInt(String input) {
+        int num;
+        try {
+            num = Integer.parseInt(input);
+        } catch (Exception e) {
+            num = 0;
+        }
+        return num;
+    }
+
+    //Everyone is standing
+    public boolean allStand() {
+        for (Player player : players) if (!player.standing) return false;
+        return true;
     }
 }
