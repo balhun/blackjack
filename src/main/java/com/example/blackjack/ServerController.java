@@ -205,7 +205,7 @@ public class ServerController {
                 players.get(searchPlayer(ip)).standing = true;
                 if (allStand()) {
                     for (Player player : players) {
-                            for (int i = 2; i < serverCards.size(); i++) {
+                            for (int i = 1; i < serverCards.size(); i++) {
                                 try { Thread.sleep(100); } catch (InterruptedException e) { throw new RuntimeException(e); }
                                 message = String.format("s:%s", serverCards.get(i));
                                 send(message, player.ip, player.port);
@@ -337,11 +337,7 @@ public class ServerController {
     //Tries to parseInt
     public int tryInt(String input) {
         int num;
-        try {
-            num = Integer.parseInt(input);
-        } catch (Exception e) {
-            num = 0;
-        }
+        try { num = Integer.parseInt(input); } catch (Exception e) { num = 0; }
         return num;
     }
 
