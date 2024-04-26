@@ -102,7 +102,8 @@ public class ServerController {
 
         while (serverCardsValue < 17) serverCards.add(randCard('s', ""));
 
-        for (String x : serverCards) System.out.println("serverCard = " + x);
+        for (String x : serverCards) listview.getItems().add("serverCard = " + x);
+        
         for (Player x : players) {
             x.inRound = true;
             send(message, x.ip, x.port);
